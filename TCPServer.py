@@ -1,0 +1,27 @@
+from socket import *
+import threading
+
+
+IP = '0.0.0.0'        # Server IP 
+PORT = 9898           # Server Port
+
+def main():
+    server = socket(AF_INET, SOCK_STREAM)
+    server.bind((IP, PORT))
+    server.listen(5)                      
+    print(f'[*] Listening on {IP}:{PORT}')
+
+    while True:
+        client, address = server.accept()
+        print(f'[*] Accepted connection from {address[0]}:{address[1]}')
+        client_handler = threading.Thread(target=handler_client, args=(client,))
+        client_handler.start()
+
+def handler_client(client_socket):
+    with client_socket as sock:
+        request = sock.recv(1024)
+        print(f'[*] Received: {request.decode("UTF-8")}')
+        sock.send(b'ACK')
+
+if __name__=='__main__':
+    main()
